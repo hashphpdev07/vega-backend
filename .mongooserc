@@ -1,0 +1,9 @@
+const { resolve } = require('path');
+const { SERVER } = require('./src/v1/utils/constants.util');
+
+module.exports = {
+    'config': resolve('src', SERVER.CURRENT_VERSION, 'config', 'db.config.js'),
+    'models-path': resolve('src', SERVER.CURRENT_VERSION, 'models'),
+    'migrations-path': resolve('src', SERVER.CURRENT_VERSION, 'migrations'),
+    'seeders-path': resolve('src', SERVER.CURRENT_VERSION, 'seeders'),
+};

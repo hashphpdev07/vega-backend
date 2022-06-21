@@ -1,0 +1,36 @@
+type User {
+  id: String!
+  fullName: String!
+  email: String!
+  photo: String
+  # password: String!
+}
+
+type AuthPayload {
+  token: String!
+  user: User!
+}
+
+type SuccessResponse {
+  message: String
+}
+
+type Profile {
+  fullName: String!
+  photo: String
+  email: String!
+}
+
+extend type Query {
+  logout: SuccessResponse
+  profile: Profile
+}
+
+extend type Mutation {
+	register(fullName: String,  email: String,  password: String): AuthPayload!
+	login(email: String, password: String): AuthPayload!
+  # profile(fullName: String, password: String,  photo: String,  email: String): AuthPayload!
+  # updateProfilePhoto(photo: String!) : SuccessResponse!
+  # forgotPassword(email: String): SuccessResponse!
+  # resetPassword(email: String, password: String, resetPasswordToken:String): AuthPayload!
+}
