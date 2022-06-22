@@ -3,9 +3,9 @@ const { ROLES, ENVIRONMENTS } = require('../../utils/constants.util')
 const { SUCCESSMSG, VALIDATOR, EMAILTITLE } = require('../../utils/errormsg.util')
 const { ValidationException } = require('../../exceptions/validation.exception')
 const { isEmpty, pick, random } = require('lodash')
-const { registerRequest, loginRequest, profileRequest, forgotPasswordRequest, resetPasswordRequest } = require('../../validators/user.validator')
+const { registerRequest, loginRequest } = require('../../validators/user.validator')
 const { authMiddleware, userMiddleware } = require('../../middlewares/user.middleware')
-const { User, UserLogin, Role, ActivityLog } = require('../../models').default
+const { Users, UserLogin, Role, ActivityLog } = require('../../models').default
 const { generateToken } = require('../../utils/helpers.util')
 const { sendEmailUsingTemplate, sendEmailUsingTemplateRegistration } = require('../../utils/email.util')
 const mongoose = require('mongoose')
@@ -40,11 +40,11 @@ module.exports = {
 		// User register
 		async register(_, body) {
 			registerRequest(body)
-			const { fullName, email, password } = body
+			const { FirstName, LastName, email, password, ProfilePic } = body
 			const validator = {}
 
 			// Check if email is new or exists
-			const emailExists = await User.findOne({ 'email': email })
+			const emailExists = await Users.findOne({ 'email': email })
 
 			if (emailExists) {
 				validator.email = VALIDATOR.EmailTaken
@@ -54,12 +54,13 @@ module.exports = {
 				throw new ValidationException(validator)
 			}
 			//const roleData = await Role.findOne( { 'name': "user" } )
-			const user = await User.create({
-				fullName,
+			const user = await Users.create({
+				FirstName,
+				LastName,
 				email,
 				password: await bcrypt.hash(password, 10),
 				roleId: ROLES.USER,
-				photo: null
+				ProfilePic
 			})
 
 			const token = generateToken(user)
@@ -78,17 +79,17 @@ module.exports = {
 				},
 			})
 
-			ActivityLog.create({ userId: mongoose.Types.ObjectId(user._id), eventType: "New User " + user.fullName + " register in our system." })
+			//ActivityLog.create({ userId: mongoose.Types.ObjectId(user._id), eventType: "New User " + user.fullName + " register in our system." })
 
 			await UserLogin.create({ userId: mongoose.Types.ObjectId(user.id), jwtToken: token })
-			return { token, user: { id: user.id, ...pick(user, ['fullName', 'email']) } }
+			return { token, user: { id: user.id, ...pick(user, ['FirstName', 'LastName', 'email', 'ProfilePic']) } }
 		},
 
 		// User login
 		async login(_, body) {
 			loginRequest(body)
 			const { email, password } = body
-			const user = await User.findOne({ "email": email })
+			const user = await Users.findOne({ "email": email })
 			if (!user) {
 				throw new ValidationException({ email: VALIDATOR.UsernotExsit })
 			}
@@ -101,7 +102,7 @@ module.exports = {
 			//const roleData = await Role.findOne( { '_id': user.roleId } )
 			UserLogin.create({ userId: mongoose.Types.ObjectId(user.id), jwtToken: token })
 
-			return { token, user: { id: user.id, ...pick(user, ['fullName', 'email']) } }
+			return { token, user: { id: user.id, ...pick(user,  ['FirstName', 'LastName', 'email']) } }
 
 		},
 

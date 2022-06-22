@@ -10,6 +10,8 @@ const jsonwebtoken = require('jsonwebtoken')
 const { User, UserLogin } = require('./v1/models').default
 const {schema  } = require(`./${SERVER.CURRENT_VERSION}/graphql`)
 const socketIO = require('socket.io');
+const { Server } = require("socket.io");
+
 //const { adminRouteOptions, adminRoutes } = require(`./${SERVER.CURRENT_VERSION}/routes/admin.route`)
 const app = express()
 const mongoose = require('mongoose')
@@ -25,34 +27,25 @@ app.use(express.static('public'))
 // Server instance
 const server = createServer(app)
 
+//const io = new Server(server)
+
 mongoose.set('useNewUrlParser', true);
 mongoose.set('useFindAndModify', false);
 mongoose.set('useCreateIndex', true);
 
 // Socket
 
-let io = socketIO(server)
+// app.get('/', (req, res) => {
+// 	res.sendFile(__dirname + '/index.html');
+//   });
 
-// make connection with user from server side
-io.on('connection', (socket)=>{
-	console.log('New user connected');
-	 //emit message from server to user
-	 socket.emit('newMessage', {
-	   from:'jen@mds',
-	   text:'hepppp',
-	   createdAt:123
-	 });
-   
-	// listen for message from user
-	socket.on('createMessage', (newMessage)=>{
-	  console.log('newMessage', newMessage);
-	});
-   
-	// when server disconnects from user
-	socket.on('disconnect', ()=>{
-	  console.log('disconnected from user');
-	});
-  });
+// io.on('connection', (socket) => {
+// 	console.log("Hello")
+// 	socket.on('chat message', (msg) => {
+// 	  console.log('message: ' + msg);
+// 	  io.emit('chat message', msg);
+// 	});
+//   });
 
 // Start the server
 server.listen(SERVER.PORT, async _ => {
@@ -66,7 +59,7 @@ server.listen(SERVER.PORT, async _ => {
 			let contextData = {}
 			
 			const token = ((req.headers.authorization || '').replace('Bearer ', '')).trim();
-			console.log(token)
+			//console.log(token)
 			if (token) {
 				try {
 					var user = jsonwebtoken.verify(token, JWT.SECRET)

@@ -3,7 +3,7 @@ const { ValidationException } = require("../exceptions/validation.exception")
 
 exports.registerRequest = body => {
     const validator = {}
-    const fields = ['fullName', 'email', 'password']
+    const fields = ['FirstName', 'LastName', 'email', 'password']
     fields.forEach(field => {
         if (!body[field]) {
             validator[field] = `Please enter ${field}`
