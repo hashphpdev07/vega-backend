@@ -8,13 +8,16 @@ const { join } = require(`path`)
 const { GraphQLResponseHandler, GraphQLErrorHandler } = require('./v1/utils/helpers.util')
 const jsonwebtoken = require('jsonwebtoken')
 const { User, UserLogin } = require('./v1/models').default
-const {schema  } = require(`./${SERVER.CURRENT_VERSION}/graphql`)
-const socketIO = require('socket.io');
+const { schema } = require(`./${SERVER.CURRENT_VERSION}/graphql`)
 const { Server } = require("socket.io");
-
+var bodyParser = require('body-parser');
 //const { adminRouteOptions, adminRoutes } = require(`./${SERVER.CURRENT_VERSION}/routes/admin.route`)
+
 const app = express()
 const mongoose = require('mongoose')
+app.use(bodyParser.urlencoded({
+	extended: true
+  }));
 
 // parse only json data
 app.use(express.json())
@@ -27,7 +30,8 @@ app.use(express.static('public'))
 // Server instance
 const server = createServer(app)
 
-//const io = new Server(server)
+const io = new Server(server)
+
 
 mongoose.set('useNewUrlParser', true);
 mongoose.set('useFindAndModify', false);
@@ -35,39 +39,77 @@ mongoose.set('useCreateIndex', true);
 
 // Socket
 
-// app.get('/', (req, res) => {
-// 	res.sendFile(__dirname + '/index.html');
-//   });
+var userControllers = require(`./${SERVER.CURRENT_VERSION}/controllers/userComposion`)
+
+// login Page 
+var loginRouter = require(`./${SERVER.CURRENT_VERSION}/routes/login`);
+
+app.use('/login', loginRouter);
+
+// -------------------------FFMPEG Files------------
+
+var videoToImageRouter = require(`./${SERVER.CURRENT_VERSION}/routes/videoToImage`);
+var videoToAudioRouter = require(`./${SERVER.CURRENT_VERSION}/routes/videoToAudio`);
+var twovideoMergeRouter = require(`./${SERVER.CURRENT_VERSION}/routes/twovideoMerge`);
+var videoImageRouter = require(`./${SERVER.CURRENT_VERSION}/routes/videoImage`);
+var videoAudioRouter = require(`./${SERVER.CURRENT_VERSION}/routes/videoAudio`);
+var videoAudioImageRouter = require(`./${SERVER.CURRENT_VERSION}/routes/videoAudioImage`);
+var videoAudioImageFilterRouter = require(`./${SERVER.CURRENT_VERSION}/routes/videoAudioImageFilter`);
+var videoAudioImageFilterRouter = require(`./${SERVER.CURRENT_VERSION}/routes/videoAudioImageFilter`);
+var transiotionRouter = require(`./${SERVER.CURRENT_VERSION}/routes/transiotion`);
+var allmergeRouter = require(`./${SERVER.CURRENT_VERSION}/routes/allmerge`);
+var twoaudiovideoRouter = require(`./${SERVER.CURRENT_VERSION}/routes/twoaudiovideo`);
+
+app.use('/videoToImage', videoToImageRouter);
+app.use('/videoToAudio', videoToAudioRouter);
+app.use('/twovideoMerge', twovideoMergeRouter);
+app.use('/videoImage', videoImageRouter);
+app.use('/videoAudio', videoAudioRouter);
+app.use('/videoAudioImage', videoAudioImageRouter);
+app.use('/videoAudioImageFilter', videoAudioImageFilterRouter);
+app.use('/transition', transiotionRouter);
+app.use('/allmerge', allmergeRouter);
+app.use('/twoaudiovideo', twoaudiovideoRouter);
+
+// -------------- End --------------------------
+
+app.get('/', (req, res) => {
+	res.sendFile(__dirname + '/index.html');
+});
+app.set("view engine", "ejs");
+app.set("views", join(__dirname, `/${SERVER.CURRENT_VERSION}/views`));
 
 // io.on('connection', (socket) => {
 // 	console.log("Hello")
 // 	socket.on('chat message', (msg) => {
 // 	  console.log('message: ' + msg);
-// 	  io.emit('chat message', msg);
+// 	  io.of("/").emit('chat message', msg);
 // 	});
 //   });
-
+io.on('connection', userControllers.Composion);
 // Start the server
 server.listen(SERVER.PORT, async _ => {
 	const srv = new ApolloServer({
-	schema,
+		schema,
 		// introspection: The default value is true, unless the NODE_ENV environment variable is set to production.
 		// graphqlPath:`/api/${SERVER.CURRENT_VERSION}/gql`,
 		formatError: GraphQLErrorHandler,
 		formatResponse: GraphQLResponseHandler,
 		context: async ({ req }) => {
 			let contextData = {}
-			
+
 			const token = ((req.headers.authorization || '').replace('Bearer ', '')).trim();
-			//console.log(token)
+
+			
+			console.log(token)
 			if (token) {
 				try {
 					var user = jsonwebtoken.verify(token, JWT.SECRET)
 					if (user && user.id) {
 						user = await User.findOne({ '_id': user.id })
-						
-						var login = await UserLogin.findOne({  jwtToken: token })
-						
+
+						var login = await UserLogin.findOne({ jwtToken: token })
+
 						if (user && login && !login.logoutAt) {
 							user.login = login
 							contextData.auth = user

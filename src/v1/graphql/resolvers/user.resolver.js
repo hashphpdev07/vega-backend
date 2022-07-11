@@ -11,7 +11,7 @@ const { sendEmailUsingTemplate, sendEmailUsingTemplateRegistration } = require('
 const mongoose = require('mongoose')
 const {
 	UserInputError
-  } = require('apollo-server-express');
+} = require('apollo-server-express');
 
 
 module.exports = {
@@ -34,7 +34,7 @@ module.exports = {
 		},
 
 		//get all followerlist
-	
+
 	},
 	Mutation: {
 		// User register
@@ -102,7 +102,7 @@ module.exports = {
 			//const roleData = await Role.findOne( { '_id': user.roleId } )
 			UserLogin.create({ userId: mongoose.Types.ObjectId(user.id), jwtToken: token })
 
-			return { token, user: { id: user.id, ...pick(user,  ['FirstName', 'LastName', 'email']) } }
+			return { token, user: { id: user.id, ...pick(user, ['FirstName', 'LastName', 'email']) } }
 
 		},
 
