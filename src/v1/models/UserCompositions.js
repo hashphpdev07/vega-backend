@@ -1,12 +1,16 @@
 'use strict';
 module.exports = mongoose => {
   const newSchema = new mongoose.Schema({
-    UserId:{
+    UserId: {
       type: mongoose.Schema.Types.ObjectId, ref: 'Users'
     },
     Metadata: {
       type: String
-    }
+    },
+    ShareuserId: [{
+      userId: { type: mongoose.Schema.Types.ObjectId, ref: 'Users' },
+      permissions: { type: Array },
+    }]
   }, {
     timestamps: {
       createdAt: 'created_at',

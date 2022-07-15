@@ -1,0 +1,10 @@
+type Project {
+  id: String!
+  name: String!
+}
+
+
+extend type Mutation {
+	#addProject(name: String!, Metadata: String): Project  
+  shareComposition(Id: String!, email: String!): SuccessResponse,
+}

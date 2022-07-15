@@ -19,7 +19,7 @@ module.exports = mongoose => {
     StatusId: {
       type: String
     },
-    RoleId: {
+    roleId: {
       type: String
     },
     IsPasswordResetRequested: {

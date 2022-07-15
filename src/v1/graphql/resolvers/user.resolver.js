@@ -5,7 +5,7 @@ const { ValidationException } = require('../../exceptions/validation.exception')
 const { isEmpty, pick, random } = require('lodash')
 const { registerRequest, loginRequest } = require('../../validators/user.validator')
 const { authMiddleware, userMiddleware } = require('../../middlewares/user.middleware')
-const { Users, UserLogin, Role, ActivityLog } = require('../../models').default
+const { Users, UserLogin } = require('../../models').default
 const { generateToken } = require('../../utils/helpers.util')
 const { sendEmailUsingTemplate, sendEmailUsingTemplateRegistration } = require('../../utils/email.util')
 const mongoose = require('mongoose')
@@ -21,7 +21,7 @@ module.exports = {
 			authMiddleware(auth)
 			userMiddleware(auth)
 
-			return { ...pick(auth, ['fullName', 'email', 'photo']) }
+			return { ...pick(auth, ['FirstName', 'LastName', 'email', 'ProfilePic']) }
 
 		},
 

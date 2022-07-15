@@ -7,7 +7,7 @@ const { createServer } = require(`http`)
 const { join } = require(`path`)
 const { GraphQLResponseHandler, GraphQLErrorHandler } = require('./v1/utils/helpers.util')
 const jsonwebtoken = require('jsonwebtoken')
-const { User, UserLogin } = require('./v1/models').default
+const { Users, UserLogin } = require('./v1/models').default
 const { schema } = require(`./${SERVER.CURRENT_VERSION}/graphql`)
 const { Server } = require("socket.io");
 var bodyParser = require('body-parser');
@@ -100,13 +100,12 @@ server.listen(SERVER.PORT, async _ => {
 
 			const token = ((req.headers.authorization || '').replace('Bearer ', '')).trim();
 
-			
-			console.log(token)
 			if (token) {
 				try {
 					var user = jsonwebtoken.verify(token, JWT.SECRET)
+					//console.log(user)
 					if (user && user.id) {
-						user = await User.findOne({ '_id': user.id })
+						user = await Users.findOne({ '_id': user.id })
 
 						var login = await UserLogin.findOne({ jwtToken: token })
 
